@@ -279,6 +279,23 @@ GPU Utilization: Ensures that both the model and data are moved to the GPU for o
 
 By implementing these optimizations, the script is better suited to leverage your system's hardware capabilities, leading to more efficient fine-tuning of the model.
 
+
+In the optimized script, the dataset is loaded using the datasets library from Hugging Face, specifying separate files for training and validation:
+
+python
+
+`dataset = load_dataset('csv', data_files={'train': 'train.csv', 'validation': 'val.csv'})`
+This approach allows you to explicitly define which files correspond to the training and validation sets, providing greater control over dataset management.
+
+Structure of train.csv and val.csv:
+
+Both train.csv and val.csv should have the same structure, containing at least two columns:
+
+**source**: The input text in the source language (e.g., English).
+**target**: The corresponding translated text in the target language (e.g., Czech).
+Each row represents a pair of source and target texts.
+
+
 In the context of training a machine translation model, it's essential to have separate datasets for training and validation to evaluate the model's performance on unseen data. Therefore, train.csv and val.csv should contain different content, each representing distinct subsets of your data.
 
 Number of Lines in train.csv and val.csv:

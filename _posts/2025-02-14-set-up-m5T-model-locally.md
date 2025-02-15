@@ -36,9 +36,9 @@ in Command prompt: `pip install transformers torch sentencepiece`
 - Download and install the Build Tools for Visual Studio.
 - During installation, select the C++ build tools workload.
 - Make sure following are chekced:
-  1. MSVC v143 - VS 2022 C++ x64/x86 生成工具（MSVC v143 - VS 2022 C++ x64/x86 build tools）
+  1. MSVC v143 - VS 2022 C++ x64/x86 build tools
   2. Windows 10 SDK（Windows 10 SDK) -- I installed 11 SDK
-  3. C++ CMake 工具（C++ CMake tools）
+  3. C++ CMake tools
 - Restart your computer after installation.
 
 **[Issue]** Encountered following when pip install:

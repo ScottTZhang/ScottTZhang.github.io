@@ -3,7 +3,7 @@
 1. CPU: AMD Ryzen 9 7900X 12-Core Processor 4.70 GHz,
 2. Computer with 32.0 GB RAM (31.6 GB available),
 3. System type: 64-bit operating system, x64-based processor,
-4. GPU NVIDIA RTX 4070 Ti Super: 8,448 CUDA cores, 12 GB of GDDR6X memory.
+4. Gigabyte NVIDIA GeForce RTX 4070 Ti Super Eagle.
 
 ## 1) Everything must be run using x64 Command prompt:
 Press **Win + S**, search for **x64 Native Tools Command Prompt for VS 2022**, and open it.

@@ -113,62 +113,62 @@ tokenizer.save_pretrained('./en2cz_model')
 ```
 Explanation:
 
-Dataset Loading:
+### Dataset Loading:
 
-The dataset is loaded from a CSV file using the datasets library.
+The dataset is loaded from a **CSV** file using the datasets library.
 
-Tokenizer and Model:
+### Tokenizer and Model:
 
-The MT5Tokenizer and MT5ForConditionalGeneration are loaded from the Hugging Face Model Hub.
+The **MT5Tokenizer** and **MT5ForConditionalGeneration** are loaded from the Hugging Face Model Hub.
 
-LoRA Configuration:
+### LoRA Configuration:
 
-LoRA is configured with a rank of 8, a scaling factor (lora_alpha) of 32, and a dropout rate of 0.1. These parameters can be adjusted based on your specific requirements.
+**LoRA** is configured with a rank of 8, a scaling factor (lora_alpha) of 32, and a dropout rate of 0.1. These parameters can be adjusted based on your specific requirements.
 
-Tokenization:
+### Tokenization:
 
 The dataset is tokenized using the tokenizer, with padding and truncation applied to ensure consistent input lengths.
 
-Training Arguments:
+### Training Arguments:
 
 Training arguments are defined, including parameters like learning rate, batch size, number of epochs, and logging settings.
 
-Trainer Initialization:
+### Trainer Initialization:
 
 The Trainer is initialized with the model, training arguments, tokenized datasets, and tokenizer.
 
-Training:
+### Training:
 
-The model is trained using the train() method of the Trainer.
+The model is trained using the **train()** method of the Trainer.
 
-Saving the Model:
+### Saving the Model:
 
 After training, the fine-tuned model and tokenizer are saved to the specified directory.
 
-Additional Considerations:
+### Additional Considerations:
 
-Hardware Requirements: Fine-tuning large models like mt5-large requires substantial computational resources. Ensure you have access to a machine with sufficient GPU capabilities.
+**Hardware Requirements**: Fine-tuning large models like mt5-large requires substantial computational resources. Ensure you have access to a machine with sufficient GPU capabilities.
 
-Hyperparameter Tuning: The hyperparameters (e.g., learning rate, batch size, number of epochs) should be tuned based on your specific dataset and computational resources.
+**Hyperparameter Tuning**: The hyperparameters (e.g., learning rate, batch size, number of epochs) should be tuned based on your specific dataset and computational resources.
 
-Evaluation: Implement a compute_metrics function to evaluate the model's performance on the validation set during training.
+**Evaluation**: Implement a compute_metrics function to evaluate the model's performance on the validation set during training.
 
 By following these steps, you can fine-tune the google/mt5-large model for English to Czech translation using your CSV dataset with language labels and LoRA for efficient training.
 
 ---
 To optimize your script for fine-tuning a model using your system's hardware, including an AMD Ryzen 9 7900X CPU and an NVIDIA GeForce RTX 4070 Ti Super Eagle GPU, consider the following adjustments:
 
-1. Enable Mixed Precision Training:
+**1. Enable Mixed Precision Training:**
 
 Utilize PyTorch's Automatic Mixed Precision (AMP) to accelerate training and reduce memory usage. This approach allows certain operations to use 16-bit floating-point numbers while maintaining 32-bit precision where necessary. 
 PYTORCH.ORG
 
-2. Optimize Data Loading:
+**2. Optimize Data Loading:**
 
 Enhance data loading efficiency by leveraging multiple worker processes and prefetching data. This strategy ensures that the GPU remains fed with data, minimizing idle times. 
 PYTORCH.ORG
 
-3. Utilize the GPU:
+**3. Utilize the GPU:**
 
 Ensure that both the model and data are moved to the GPU to take full advantage of its computational power.
 
@@ -279,7 +279,6 @@ GPU Utilization: Ensures that both the model and data are moved to the GPU for o
 
 By implementing these optimizations, the script is better suited to leverage your system's hardware capabilities, leading to more efficient fine-tuning of the model.
 
-
 In the optimized script, the dataset is loaded using the datasets library from Hugging Face, specifying separate files for training and validation:
 
 python
@@ -294,7 +293,6 @@ Both train.csv and val.csv should have the same structure, containing at least t
 **source**: The input text in the source language (e.g., English).
 **target**: The corresponding translated text in the target language (e.g., Czech).
 Each row represents a pair of source and target texts.
-
 
 In the context of training a machine translation model, it's essential to have separate datasets for training and validation to evaluate the model's performance on unseen data. Therefore, train.csv and val.csv should contain different content, each representing distinct subsets of your data.
 

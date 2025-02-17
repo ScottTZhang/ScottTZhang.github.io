@@ -26,8 +26,7 @@ if not os.path.exists('train.tsv') or not os.path.exists('val.tsv'):
 else:
     print("Train and validation TSV files already exist.")
 
-
-# -------------------------------
+#-------------------------------
 # Step 2: Load the pre-trained model and tokenizer
 # -------------------------------
 # If you have the model locally, set model_name to the local path (e.g., './mt5-large')
@@ -226,8 +225,11 @@ tokenizer.save_pretrained(final_save_path)
 print("Training complete. Model saved to", final_save_path)
 ```
 Dataset has 26000 lines.
+
 The result prints: 
+
 NaN or Inf loss detected!
+
 NaN or Inf loss detected!
-NaN or Inf loss detected!
+
 NaN or Inf loss detected!

@@ -401,6 +401,21 @@ Function: `evaluate(model, dataloader, device)`
   Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
   ```
 
+### After enabling `model = get_peft_model(model, lora_config)`
+- Results: 
+  ```
+	Line  363: 2025-03-06 14:52:16,427 - INFO - Epoch 3, Global Step 5800, Loss: 33.1783
+	Line 1164: 2025-03-06 14:58:36,783 - INFO - Epoch 3, Global Step 6000, Loss: 33.2051
+	Line 1958: 2025-03-06 15:08:22,505 - INFO - Epoch 3, Global Step 6200, Loss: 35.6984
+	Line 2755: 2025-03-06 15:14:38,682 - INFO - Epoch 3, Global Step 6400, Loss: 36.6631
+	Line 3552: 2025-03-06 15:24:28,047 - INFO - Epoch 3, Global Step 6600, Loss: 34.2763
+	Line 4352: 2025-03-06 15:30:50,879 - INFO - Epoch 3, Global Step 6800, Loss: 30.9876
+	Line 5146: 2025-03-06 15:37:10,508 - INFO - Epoch 3, Global Step 7000, Loss: 34.8415
+	Line 5945: 2025-03-06 15:46:55,176 - INFO - Epoch 3, Global Step 7200, Loss: 32.9306
+	Line 6745: 2025-03-06 15:53:16,560 - INFO - Epoch 3, Global Step 7400, Loss: 31.7479
+	Line 7544: 2025-03-06 16:03:04,357 - INFO - Epoch 3, Global Step 7600, Loss: 33.7565
+	Line 8342: 2025-03-06 16:09:24,471 - INFO - Epoch 3, Global Step 7800, Loss: 31.3005
+    ```
 ---
 ### 优化技术总结:
 - **显存优化**

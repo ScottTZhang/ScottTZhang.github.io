@@ -394,6 +394,8 @@ Function: `evaluate(model, dataloader, device)`
 
   `model = get_peft_model(model, lora_config)` is commented out. Still encounter runtime error:
 
+	Even the loss is low, the test sentences for translation still bad like trash, lol
+
   ```
   RuntimeError: CUDA error: out of memory
   CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.

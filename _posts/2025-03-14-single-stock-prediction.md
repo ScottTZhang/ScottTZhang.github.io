@@ -1,6 +1,9 @@
 Target: 
+
 Using the API method "stock_zh_a_hist_min_em" from akshare.akfamily.xyz to obtain recent 3-month stock data (Initailization) (5 minutes interval, period="5", or 1 hour interval, period="60", and adjust="hfq"), combing the recent 3-month stock news to analyze the negative or positive effect, and stock financial information (API: stock_financial_debt_ths and stock_financial_benefit_ths), to predict the stock (SYMBOL) prices.
+
 Model used:
+
 Hugginface: uer/roberta-base-finetuned-jd-binary-chinese
 
 2. Store the data in MySQL.

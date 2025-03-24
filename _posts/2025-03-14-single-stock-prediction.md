@@ -1,5 +1,9 @@
-1. 用stock_zh_a_hist_min_em获取（初始化时）最近三个月的分时数据（5分钟period="5"或者1小时 period="60",  且adjust="hfq"），结合stock_news_em得到最近三个月的新闻做情绪分析，结合stock_financial_debt_ths和stock_financial_benefit_ths得到的财务数据做基本面分析，对个股（SYMBOL）进行股价建模和预测。
-2. 数据存储在MySQL.
+Target: 
+Using the API method "stock_zh_a_hist_min_em" from akshare.akfamily.xyz to obtain recent 3-month stock data (Initailization) (5 minutes interval, period="5", or 1 hour interval, period="60", and adjust="hfq"), combing the recent 3-month stock news to analyze the negative or positive effect, and stock financial information (API: stock_financial_debt_ths and stock_financial_benefit_ths), to predict the stock (SYMBOL) prices.
+Model used:
+Hugginface: uer/roberta-base-finetuned-jd-binary-chinese
+
+2. Store the data in MySQL.
 ```
 import torch
 import torch.nn as nn
@@ -14,7 +18,7 @@ from datetime import datetime, timedelta
 from transformers import pipeline
 import os
 
-# 配置信息
+# Config
 SYMBOL = "******"
 DB_CONFIG = {
     "host": "127.0.0.1",
@@ -97,21 +101,21 @@ class StockPipeline:
             adjust='hfq',
             start_date=start_date
         )
-        # 处理时区转换
+        # time-zone converting
         df['datetime'] = pd.to_datetime(df['时间']).dt.tz_localize('Asia/Shanghai')
         df = df.rename(columns={
-            '开盘': 'open',
-            '最高': 'high',
-            '最低': 'low',
-            '收盘': 'close',
-            '成交量': 'volume'
+            '开盘': 'open', //open price
+            '最高': 'high', //highest
+            '最低': 'low', //lowest
+            '收盘': 'close', //close price
+            '成交量': 'volume' //transaction volume
         })
         df['symbol'] = SYMBOL
         df['adjust_type'] = 'hfq'
         df['last_modified_date'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         df = df[['symbol', 'datetime', 'open', 'high', 'low', 'close', 'volume', 'adjust_type', 'last_modified_date']]
         
-        # 保存到数据库
+        # write to db
         df = df.drop_duplicates(subset=['symbol', 'datetime'])
         df.to_sql('stock_5min', self.engine, if_exists='replace', index=False)
 
@@ -119,7 +123,7 @@ class StockPipeline:
         news_df = ak.stock_news_em(symbol=SYMBOL)
         news_df['pub_date'] = pd.to_datetime(news_df['发布时间']).dt.tz_localize('Asia/Shanghai')
         
-        # 情感分析
+        # News sentiment analysis
         news_df['sentiment_score'] = news_df['新闻内容'].apply(
             lambda x: self.sentiment_analyzer(x[:512])[0]['score']
         )
@@ -164,15 +168,15 @@ class StockPipeline:
         return x
 
     def fetch_financial_data(self):
-        # 获取债务数据
+        # Get debt data
         debt_df_raw = ak.stock_financial_debt_ths(symbol=SYMBOL)
         debt_df = debt_df_raw.map(self._convert_chinese_number)
 
-        # 获取收益数据
+        # Get benefit data
         profit_df_raw = ak.stock_financial_benefit_ths(symbol=SYMBOL)
         profit_df = profit_df_raw.map(self._convert_chinese_number)
         
-        # 合并财务数据
+        # Merge financial data
         merged_df = pd.merge(debt_df, profit_df, on='报告期')
         merged_df['report_date'] = pd.to_datetime(merged_df['报告期'] + ' ' + '15:00:00')
         merged_df['symbol'] = SYMBOL
@@ -191,7 +195,7 @@ class StockPipeline:
         merged_df.to_sql('financial_data', self.engine, if_exists='replace', index=False)
         
     def _prepare_training_data(self):
-        # 获取合并后的特征数据
+        # Get merged features
         query = f"""
         SELECT s.datetime, s.open, s.high, s.low, s.close, s.volume, 
            COALESCE(n.sentiment_score, 0.5) as sentiment_score,
@@ -209,7 +213,7 @@ class StockPipeline:
         """
         raw_data = pd.read_sql(query, self.engine)
         
-        # 处理空值
+        # Deal with null.
         raw_data['sentiment_score'].fillna(0.5, inplace=True)  # 中性情绪
         raw_data['debt_ratio'].fillna(method='ffill', inplace=True)
         
@@ -220,7 +224,7 @@ class StockPipeline:
         
         raw_data['price_momentum'] = raw_data['close'].pct_change(periods=48)  # 1日动量
         
-        # 特征工程
+        # Features chosen
         features = raw_data[['open', 'high', 'low', 'close', 'volume', 
                             'sentiment_score', 'debt_ratio', 'price_momentum']]
         self.scaler = MinMaxScaler(feature_range=(0, 1))
@@ -237,7 +241,7 @@ class StockPipeline:
                 yield current_date
                 
     def _get_historical_volume_profile(self):
-        # 获取历史各时间段的平均成交量"""
+        # Get average volume for each time period
         query = f"""
             SELECT 
                 DATE_FORMAT(datetime, '%%H%%i') AS time_key,
@@ -392,7 +396,7 @@ class StockPipeline:
             time_key = f"{current_date.hour:02d}{current_date.minute:02d}"
             base_volume = historical_volume_profile.get(time_key, last_features[4])
             
-            # 3.13: 动态成交量计算（核心改进）
+            # 3.13: Dynamic volume calculation（核心改进）
             new_volume = self._calculate_volume(
                 last_volume=last_features[4],
                 current_price=pred,
@@ -442,7 +446,7 @@ class StockPipeline:
         # 逆标准化处理
         predicted_prices = self.scaler.inverse_transform(reconstructed_data)[:, 3]
     
-        # 打印预测结果
+        # Print predicted prices
         print("\n预测结果（未来5个时间点股价）：")
         forecast_list = []
         for date, price in zip(future_dates, predicted_prices[:5]):
@@ -452,7 +456,7 @@ class StockPipeline:
                 "price": round(float(price), 2)
             })
         
-        # 保存预测结果
+        # Save prediction
         forecast_df = pd.DataFrame({
             'symbol': SYMBOL,
             'forecast_date': [d.strftime('%Y-%m-%d %H:%M:%S') for d in future_dates],
@@ -473,21 +477,21 @@ class StockPipeline:
         # print(reconstructed_data)
         import matplotlib.pyplot as plt
         import matplotlib.dates as mdates
-        # 指定支持中文的字体，例如 SimHei
+        # Assign font, 例如 SimHei
         plt.rcParams['font.sans-serif'] = ['SimHei']
         # 修正负号显示问题
         plt.rcParams['axes.unicode_minus'] = False
         plt.figure(figsize=(15, 5))
         plt.plot(volume_df['datetime'], volume_df['predicted_volume'], label='预测成交量')
         plt.plot(volume_df['datetime'], volume_df['historical_avg'], 'g--', label='历史平均')
-        plt.title('成交量预测对比')
+        plt.title('forecast and actial volume compare')
         plt.legend()
         plt.savefig('volume_comparison.png')
         plt.close()
-        # 生成可视化图表
+        # Generate visualized chart
         self._generate_visualization(raw_data, predicted_prices, future_dates)
             
-        return forecast_list  # 返回预测结果列表
+        return forecast_list  # return preidction result
         
     def _generate_visualization(self, historical, predictions, dates):
         import matplotlib.pyplot as plt
@@ -495,8 +499,8 @@ class StockPipeline:
 
         plt.figure(figsize=(18, 8))
         
-        # 历史数据（最后3天）
-        historical = historical.iloc[-3*48*3:]  # 保留最后3天数据（每天约48*3=144个5分钟段）
+        # History data (recent 3 days)
+        historical = historical.iloc[-3*48*3:]  # 保留最后3天数据（each day has 48*3=144 5-minute intervals）
         plt.plot(historical['datetime'], historical['close'], label='Historical Price', alpha=0.7)
 
         # 预测数据（全部240个点）
@@ -526,7 +530,7 @@ class StockPipeline:
         plt.grid(True, linestyle='--', alpha=0.5)
         plt.tight_layout()
 
-        # 保存图片
+        # Save report image
         reports_dir = os.path.join(os.getcwd(), 'reports')
         os.makedirs(reports_dir, exist_ok=True)
         save_path = os.path.join(reports_dir, f'{datetime.now().strftime("%Y%m%d%H%M%S")}_forecast.png')
